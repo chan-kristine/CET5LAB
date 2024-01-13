@@ -1,4 +1,6 @@
 <?php
+// Include PHPMailer Autoload file
+require 'vendor/autoload.php';
 ob_start(); // Start output buffering
 
 // Start the session at the very beginning
@@ -27,16 +29,24 @@ $to      = (isset($_POST['txtTo'])) ? $_POST['txtTo'] : '';
 $subject = (isset($_POST['txtSubject'])) ? $_POST['txtSubject'] : '';
 $message = (isset($_POST['txtMessage'])) ? $_POST['txtMessage'] : '';
 
-// Mail settings
-ini_set('sendmail_from', $from);
-ini_set('smtp_port', 25);
-ini_set('SMTP', '10.10.10.22');
+// Mail settings using PHPMailer
+$mail = new PHPMailer\PHPMailer\PHPMailer();
+$mail->isSMTP();
+$mail->Host = '10.10.10.22';  
+$mail->SMTPAuth = false;      
+$mail->SMTPAutoTLS = false;   
+$mail->Port = 25;            
 
 if (count($_POST) > 0) {
-    if (mail($to, $subject, $message)) {
+    $mail->setFrom($from);
+    $mail->addAddress($to);
+    $mail->Subject = $subject;
+    $mail->Body = $message;
+
+    if ($mail->send()) {
         echo 'Message sent';
     } else {
-        echo 'Message sending failed!';
+        echo 'Message sending failed: ' . $mail->ErrorInfo;
     }
 }
 ?>
